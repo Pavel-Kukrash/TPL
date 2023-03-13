@@ -73,8 +73,63 @@ Console.WriteLine($"{n1} + {n2} = {result}"); // 3 + 2 = 5
 
 Console.WriteLine("End of Main");
 
+// Class Parallel
+
+Parallel.Invoke
+(
+    Print,
+    () =>
+    {
+        Console.WriteLine($"{Task.CurrentId} task's execution");
+        Thread.Sleep(3000);
+    }
+    //() => Square(5)
+);
+
+CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
+CancellationToken token = cancelTokenSource.Token;
+
+new Task(() =>
+{
+    Thread.Sleep(1000);
+    cancelTokenSource.Cancel();
+}).Start();
+
+try
+{ 
+Parallel.For(1, 5, new ParallelOptions {CancellationToken = token }, Square);
+//ParallelLoopResult resultP = Parallel.ForEach<int>(
+
+//    new List<int>() { 1, 3, 5, 8 },
+//    Square
+//    );
+
+}
+catch (OperationCanceledException) 
+{
+    Console.WriteLine("Transaction was interrapted");
+}
+
+finally
+{
+    cancelTokenSource.Dispose();
+}
+
 
 Console.ReadKey();
+
+void Print()
+{
+    Console.WriteLine($"{Task.CurrentId} task's execution");
+    Thread.Sleep(3000);
+}
+
+void Square(int n)
+{
+    Console.WriteLine($"{Task.CurrentId} task's execution");
+    Thread.Sleep(3000);
+    Console.WriteLine($"Result is {n * n}");
+}
 
 
 int Sum(int a, int b) => a + b;
